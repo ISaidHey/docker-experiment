@@ -2,6 +2,24 @@
 
 set -e
 
+function generatePhpSiteConfigs()
+{
+    PHP_SITES=(${PHP_SITES})
+    local PHP_TMPL_FILE=/etc/nginx/sites-templates/php-site.conf.tmpl
+    for SITE in ${PHP_SITES[@]} ; do
+        generateConfig ${PHP_TMPL_FILE} ${SITE}
+    done
+}
+
+function generateStaticSiteConfigs()
+{
+    STATIC_SITES=(${STATIC_SITES})
+    local STATIC_TMPL_FILE=/etc/nginx/sites-templates/static-site.conf.tmpl
+    for SITE in ${STATIC_SITES[@]} ; do
+        generateConfig ${STATIC_TMPL_FILE} ${SITE}
+    done
+}
+
 function generateConfig()
 {
     local TMPL_FILE=${1}
@@ -14,26 +32,8 @@ function generateConfig()
         ${SITE_CONFIG}
 }
 
-function generateSiteConfigs()
-{
-    PHP_SITES=(${PHP_SITES})
-    STATIC_SITES=(${STATIC_SITES})
-
-    local PHP_TMPL_FILE=/etc/nginx/site-templates/php-site.conf.tmpl
-    local STATIC_TMPL_FILE=/etc/nginx/site-templates/static-site.conf.tmpl
-
-    # TODO This folder should already be made...
-    mkdir /etc/nginx/sites-enabled
-
-    for SITE in ${PHP_SITES[@]} ; do
-        generateConfig ${PHP_TMPL_FILE} ${SITE}
-    done
-
-    for SITE in ${STATIC_SITES[@]} ; do
-        generateConfig ${STATIC_TMPL_FILE} ${SITE}
-    done
-}
-
-generateSiteConfigs
+# Generate each sit's nginx config file.
+generatePhpSiteConfigs
+generateStaticSiteConfigs
 
 nginx -g "daemon off;"
